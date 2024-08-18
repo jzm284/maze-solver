@@ -9,6 +9,13 @@ def get_grid(width: int, height: int):
     Generates a grid of width x height nodes with edges between adjacent nodes
     (up, down, left, right). Edges are shuffled randomly and returned for use in 
     Kruskal's algorithm (finding a random minimum spanning tree aka a perfect maze).
+    
+    Args:
+        width (int): The width of the grid.
+        height (int): The height of the grid.
+    
+    Returns:
+        globalEdges: A list of shuffled edges between adjacent nodes in the grid.
     """
     grid = [[Node(x, y) for y in range(height)] for x in range(width)]
     globalEdges = []
