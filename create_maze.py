@@ -4,9 +4,14 @@ import pygame
 # right, down, left, up
 directions = [(0, 1), (1, 0), (0, -1), (-1, 0)]
 LIGHT_BLUE = (153, 204, 255)
+LIGHT_GRAY = (83, 83, 83)
 WHITE = (255, 255, 255)
+
+WIDTH = 20
+HEIGHT = 20
 SQUARE_SIZE = 40
-HEADER_SIZE = 50
+HEADER_SIZE = 0
+SIDE_PANEL_SIZE = 150
 
 
 def get_grid(width: int, height: int):
@@ -186,11 +191,12 @@ def create_maze(width, height):
     """
     pygame.init()
     screen = pygame.display.set_mode(
-        (width * SQUARE_SIZE, height * SQUARE_SIZE + HEADER_SIZE)
+        (width * SQUARE_SIZE + SIDE_PANEL_SIZE, height * SQUARE_SIZE + HEADER_SIZE)
     )
     clock = pygame.time.Clock()
     screen.fill(LIGHT_BLUE)
-    pygame.draw.rect(screen, (0, 0, 0), (0, 0, width * SQUARE_SIZE, HEADER_SIZE))
+    pygame.draw.rect(screen, (LIGHT_GRAY), (0, 0, width * SQUARE_SIZE, HEADER_SIZE))
+    pygame.draw.rect(screen, (LIGHT_GRAY), (width * SQUARE_SIZE, 0, SIDE_PANEL_SIZE, height * SQUARE_SIZE))
 
     # Flag to avoid recreating the maze on every iteration
     firstRun = True
@@ -247,4 +253,4 @@ class Edge:
 
 
 if __name__ == "__main__":
-    create_maze(20, 20)
+    create_maze(WIDTH, HEIGHT)
