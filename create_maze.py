@@ -5,6 +5,8 @@ import pygame
 directions = [(0, 1), (1, 0), (0, -1), (-1, 0)]
 LIGHT_BLUE = (153, 204, 255)
 WHITE = (255, 255, 255)
+SQUARE_SIZE = 40
+HEADER_SIZE = 50
 
 
 def get_grid(width: int, height: int):
@@ -41,7 +43,7 @@ def get_grid(width: int, height: int):
 
 
 def draw_grid(width, height, screen):
-    """ Draws the grid of the maze in the Pygame window.
+    """Draws the grid of the maze in the Pygame window.
 
     Args:
         width (_int_): The width of the grid.
@@ -50,16 +52,36 @@ def draw_grid(width, height, screen):
     """
     for i in range(width):
         for j in range(height):
-            x = i * 40
-            y = j * 40
+            x = i * SQUARE_SIZE
+            y = j * SQUARE_SIZE
 
-            pygame.draw.line(screen, WHITE, (x, y), (x + 40, y), 1)  # Top wall
-            pygame.draw.line(screen, WHITE, (x, y), (x, y + 40), 1)  # Left wall
             pygame.draw.line(
-                screen, WHITE, (x + 40, y), (x + 40, y + 40), 1
+                screen,
+                WHITE,
+                (x, y + HEADER_SIZE),
+                (x + SQUARE_SIZE, y + HEADER_SIZE),
+                1,
+            )  # Top wall
+            pygame.draw.line(
+                screen,
+                WHITE,
+                (x, y + HEADER_SIZE),
+                (x, y + SQUARE_SIZE + HEADER_SIZE),
+                1,
+            )  # Left wall
+            pygame.draw.line(
+                screen,
+                WHITE,
+                (x + SQUARE_SIZE, y + HEADER_SIZE),
+                (x + SQUARE_SIZE, y + SQUARE_SIZE + HEADER_SIZE),
+                1,
             )  # Right wall
             pygame.draw.line(
-                screen, WHITE, (x, y + 40), (x + 40, y + 40), 1
+                screen,
+                WHITE,
+                (x, y + SQUARE_SIZE + HEADER_SIZE),
+                (x + SQUARE_SIZE, y + SQUARE_SIZE + HEADER_SIZE),
+                1,
             )  # Bottom wall
     pygame.display.flip()
 
@@ -97,44 +119,55 @@ def draw_maze(width, height, screen, clock, edges):
             x1, y1 = node1.x, node1.y
             x2, y2 = node2.x, node2.y
 
-
             if x1 == x2 and y1 == y2 - 1:  # node2 is below node1
                 pygame.draw.line(
                     screen,
                     LIGHT_BLUE,
-                    (node1.x * 40, node1.y * 40 + 40),
-                    (node1.x * 40 + 40, node1.y * 40 + 40),
+                    (x1 * SQUARE_SIZE, y1 * SQUARE_SIZE + SQUARE_SIZE + HEADER_SIZE),
+                    (
+                        x1 * SQUARE_SIZE + SQUARE_SIZE,
+                        y1 * SQUARE_SIZE + SQUARE_SIZE + HEADER_SIZE,
+                    ),
                     1,
                 )
             elif x1 == x2 and y1 == y2 + 1:  # node2 is above node1
                 pygame.draw.line(
                     screen,
                     LIGHT_BLUE,
-                    (node2.x * 40, node2.y * 40 + 40),
-                    (node2.x * 40 + 40, node2.y * 40 + 40),
+                    (x2 * SQUARE_SIZE, y2 * SQUARE_SIZE + SQUARE_SIZE + HEADER_SIZE),
+                    (
+                        x2 * SQUARE_SIZE + SQUARE_SIZE,
+                        y2 * SQUARE_SIZE + SQUARE_SIZE + HEADER_SIZE,
+                    ),
                     1,
                 )
             elif x1 == x2 - 1 and y1 == y2:  # node2 is to the right of node1
                 pygame.draw.line(
                     screen,
                     LIGHT_BLUE,
-                    (node1.x * 40 + 40, node1.y * 40),
-                    (node1.x * 40 + 40, node1.y * 40 + 40),
+                    (x1 * SQUARE_SIZE + SQUARE_SIZE, y1 * SQUARE_SIZE + HEADER_SIZE),
+                    (
+                        x1 * SQUARE_SIZE + SQUARE_SIZE,
+                        y1 * SQUARE_SIZE + SQUARE_SIZE + HEADER_SIZE,
+                    ),
                     1,
                 )
             elif x1 == x2 + 1 and y1 == y2:  # node2 is to the left of node1
                 pygame.draw.line(
                     screen,
                     LIGHT_BLUE,
-                    (node2.x * 40 + 40, node2.y * 40),
-                    (node2.x * 40 + 40, node2.y * 40 + 40),
+                    (x2 * SQUARE_SIZE + SQUARE_SIZE, y2 * SQUARE_SIZE + HEADER_SIZE),
+                    (
+                        x2 * SQUARE_SIZE + SQUARE_SIZE,
+                        y2 * SQUARE_SIZE + SQUARE_SIZE + HEADER_SIZE,
+                    ),
                     1,
                 )
 
             pygame.display.update()
+            clock.tick(60)
         else:
             continue
-        clock.tick(60)
     return minSpanningTree
 
 
@@ -152,9 +185,12 @@ def create_maze(width, height):
         : the minimum spanning tree on successful completion, else None
     """
     pygame.init()
-    screen = pygame.display.set_mode((width * 40, height * 40))
+    screen = pygame.display.set_mode(
+        (width * SQUARE_SIZE, height * SQUARE_SIZE + HEADER_SIZE)
+    )
     clock = pygame.time.Clock()
     screen.fill(LIGHT_BLUE)
+    pygame.draw.rect(screen, (0, 0, 0), (0, 0, width * SQUARE_SIZE, HEADER_SIZE))
 
     # Flag to avoid recreating the maze on every iteration
     firstRun = True
@@ -173,6 +209,7 @@ def create_maze(width, height):
     pygame.quit()
 
     return maze
+
 
 # Node class to represent an (x, y) coordinate in the grid
 class Node:
@@ -197,6 +234,7 @@ class Node:
 
     def __str__(self):
         return f"({self.x}, {self.y})"
+
 
 # Edge class to represent an edge between two nodes
 class Edge:
