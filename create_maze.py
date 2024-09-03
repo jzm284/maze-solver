@@ -13,6 +13,14 @@ SQUARE_SIZE = 40
 HEADER_SIZE = 0
 SIDE_PANEL_SIZE = 150
 
+# Colors
+button_color = (0, 128, 255)
+text_color = (255, 255, 255)
+
+# Button properties
+btn_maze_start = pygame.Rect(825, 100, 100, 75)
+button_text = "Click Me!"
+
 
 def get_grid(width: int, height: int):
     """
@@ -201,20 +209,94 @@ def create_maze(width, height):
     # Flag to avoid recreating the maze on every iteration
     firstRun = True
     running = True
+    choosing_start = False
+    lock_start = False
     while running:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if btn_maze_start.collidepoint(event.pos):
+                    choosing_start = True
+        
         if firstRun:
+            text = ["Set", "Maze Start"]
+            draw_button(screen, text, btn_maze_start, button_color, text_color, "Calibri.ttf", 16)
             firstRun = False
             edges = get_grid(width, height)
             draw_grid(width, height, screen)
             maze = draw_maze(width, height, screen, clock, edges)
+        
+        if choosing_start and not lock_start:
+            done_choosing = choose_start(screen, clock)
+            if done_choosing:
+                choosing_start = False
+                lock_start = True
+            else:
+                running = False
+
         # setting frame rate to 60fps max
         clock.tick(60)
     pygame.quit()
 
     return maze
+
+def choose_start(screen, clock):
+    done_choosing = False
+    while not done_choosing:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                return False  # Indicate that we should quit the game
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                if event.button == 1:  # Left mouse button
+                    # Get the position of the mouse
+                    x, y = event.pos
+                    # Find which grid cell the mouse is in
+                    grid_x = x // SQUARE_SIZE
+                    grid_y = y // SQUARE_SIZE
+                    if grid_x < WIDTH and grid_y < HEIGHT:
+                        print(f"Start: ({grid_x}, {grid_y})")
+                        chose_end = False
+                        while not chose_end:
+                            for event in pygame.event.get():
+                                if event.type == pygame.QUIT:
+                                    return False
+                            chose_end = wait_for_end(screen, clock)
+                        pygame.display.flip()
+                        done_choosing = True
+                        return True
+
+        pygame.display.flip()
+        clock.tick(60)  # Maintain 60 FPS
+        
+    return True  # Indicate no need to quit the game
+
+def wait_for_end(screen, clock):
+    pass
+
+def draw_button(surface, text_lines, rect, button_color, text_color, font=None, font_size=36):
+    # Draw the button rectangle
+    pygame.draw.rect(surface, button_color, rect)
+    
+    # Create a font object
+    if font:
+        font = pygame.font.Font(font, font_size)
+    else:
+        font = pygame.font.Font(None, font_size)
+    
+    # Calculate total height of the text block
+    total_height = sum(font.size(line)[1] for line in text_lines)
+    
+    # Calculate the starting position to center the text block vertically
+    y_offset = rect.centery - total_height // 2
+    
+    # Render and blit each line of text
+    for line in text_lines:
+        text_surf = font.render(line, True, text_color)
+        text_rect = text_surf.get_rect(center=(rect.centerx, y_offset + text_surf.get_height() // 2))
+        surface.blit(text_surf, text_rect)
+        y_offset += text_surf.get_height()  # Move the y_offset down for the next line
+
 
 
 # Node class to represent an (x, y) coordinate in the grid
