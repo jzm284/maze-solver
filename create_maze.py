@@ -121,6 +121,10 @@ def draw_maze(width, height, screen, clock, edges):
     minSpanningTree = []
 
     while len(minSpanningTree) < n - 1:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                return None
         edge = edges.pop(0)
         # Kruskal's algorithm: if the nodes are in different sets,
         # put them in the same set and add the edge to the minimum spanning tree
@@ -193,7 +197,6 @@ def create_maze(width, height):
     Args:
         width (_int_): width (highest x value + 1) of the maze
         height (_int_): height (highest y value + 1) of the maze
-        edges (_int_): list of edges between nodes in the maze
 
     Returns:
         : the minimum spanning tree on successful completion, else None
