@@ -1,5 +1,6 @@
 import random
 import pygame
+import time
 
 # right, down, left, up
 directions = [(0, 1), (1, 0), (0, -1), (-1, 0)]
@@ -210,7 +211,7 @@ def create_maze(width, height):
     firstRun = True
     running = True
     choosing_start = False
-    lock_start = False
+    lock_points = False
     while running:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -227,13 +228,18 @@ def create_maze(width, height):
             draw_grid(width, height, screen)
             maze = draw_maze(width, height, screen, clock, edges)
         
-        if choosing_start and not lock_start:
-            done_choosing = choose_start(screen, clock)
+        if choosing_start and not lock_points:
+            print("Choosing start")
+            done_choosing, start_end = choose_start(screen, clock)
             if done_choosing:
                 choosing_start = False
-                lock_start = True
+                lock_points = start_end is not None
+                print(f"Choosing start: {choosing_start}, Lock points: {lock_points}")
             else:
                 running = False
+                
+        if lock_points:
+            a_star(screen, clock, maze, start_end[0], start_end[1])
 
         # setting frame rate to 60fps max
         clock.tick(60)
@@ -246,48 +252,83 @@ def choose_start(screen, clock):
     while not done_choosing:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                return False  # Indicate that we should quit the game
+                return False, None  # Indicate that we should quit the game
             elif event.type == pygame.MOUSEBUTTONDOWN:
-                if event.button == 1:  # Left mouse button
+                if event.button == 1:
                     # Get the position of the mouse
                     x, y = event.pos
                     # Find which grid cell the mouse is in
-                    grid_x = x // SQUARE_SIZE
-                    grid_y = y // SQUARE_SIZE
-                    if grid_x < WIDTH and grid_y < HEIGHT:
-                        print(f"Start: ({grid_x}, {grid_y})")
-                        chose_end = False
-                        while not chose_end:
-                            for event in pygame.event.get():
-                                if event.type == pygame.QUIT:
-                                    return False
-                            chose_end = wait_for_end(screen, clock)
-                        pygame.display.flip()
+                    start_x = x // SQUARE_SIZE
+                    start_y = y // SQUARE_SIZE
+                    if start_x < WIDTH and start_y < HEIGHT: # User chose a valid start position
+                        print(f"Start: ({start_x}, {start_y})")
+                        
+                        # now user has to choose an end location
+                        rval, (end_x, end_y) = choose_end(screen, clock, (start_x, start_y))
+                        if not rval:
+                            return False, None # first False indicates that we should quit the game
+                        return True, ((start_x, start_y), (end_x, end_y))
+                    elif btn_maze_start.collidepoint(event.pos): # User clicked start to cancel choosing
                         done_choosing = True
-                        return True
+                        return True, None
 
         pygame.display.flip()
         clock.tick(60)  # Maintain 60 FPS
         
     return True  # Indicate no need to quit the game
 
-def wait_for_end(screen, clock):
-    pass
+def choose_end(screen, clock, start_btn):
+    done_choosing = False
+    start_x = start_btn[0]
+    start_y = start_btn[1]
+    grid_x = -1
+    grid_y = -1
+    color = (0, 255, 0)
+    while not done_choosing:
+        if color == (0, 255, 0):
+            color = LIGHT_BLUE
+        else:
+            color = (0, 255, 0)
+        flash_square(screen, start_x, start_y, color)
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                return False, None
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                if event.button == 1:
+                    # Get the position of the mouse
+                    x, y = event.pos
+                    # Find which grid cell the mouse is in
+                    grid_x = x // SQUARE_SIZE
+                    grid_y = y // SQUARE_SIZE
+                    if grid_x < WIDTH and grid_y < HEIGHT: # User chose a valid end position
+                        flash_square(screen, start_x, start_y, (0, 255, 0))
+                        flash_square(screen, grid_x, grid_y, (255, 0, 0))
+                        done_choosing = True
+
+        pygame.display.flip()
+        clock.tick(60)  # Maintain 60 FPS
+        
+    return True, (grid_x, grid_y)
+
+def flash_square(screen, x, y, color):
+    pygame.draw.rect(screen, color, (x * SQUARE_SIZE + 1, y * SQUARE_SIZE + HEADER_SIZE + 1, SQUARE_SIZE - 1, SQUARE_SIZE - 1))
+    pygame.display.flip()
+    time.sleep(0.5)
+    
 
 def draw_button(surface, text_lines, rect, button_color, text_color, font=None, font_size=36):
     # Draw the button rectangle
     pygame.draw.rect(surface, button_color, rect)
     
-    # Create a font object
     if font:
         font = pygame.font.Font(font, font_size)
     else:
         font = pygame.font.Font(None, font_size)
     
-    # Calculate total height of the text block
+    # Calculate total height of text block
     total_height = sum(font.size(line)[1] for line in text_lines)
     
-    # Calculate the starting position to center the text block vertically
+    # Calculate the starting position to center text block vertically
     y_offset = rect.centery - total_height // 2
     
     # Render and blit each line of text
@@ -295,7 +336,7 @@ def draw_button(surface, text_lines, rect, button_color, text_color, font=None, 
         text_surf = font.render(line, True, text_color)
         text_rect = text_surf.get_rect(center=(rect.centerx, y_offset + text_surf.get_height() // 2))
         surface.blit(text_surf, text_rect)
-        y_offset += text_surf.get_height()  # Move the y_offset down for the next line
+        y_offset += text_surf.get_height()  # Move y_offset down for next line of text
 
 
 
