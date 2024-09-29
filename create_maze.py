@@ -344,8 +344,6 @@ def draw_button(surface, text_lines, rect, button_color, text_color, font=None, 
         y_offset += text_surf.get_height()  # Move y_offset down for next line of text
 
 
-
-# Node class to represent an (x, y) coordinate in the grid
 class Node:
     def __init__(self, x, y):
         self.x = x
@@ -364,8 +362,13 @@ class Node:
     def __hash__(self):
         return hash((self.x, self.y))
 
+    # Equality check needed for dictionary keys and sets
     def __eq__(self, other):
         return self.x == other.x and self.y == other.y
+
+    # Comparison for sorting and priority queue operations
+    def __lt__(self, other):
+        return (self.x, self.y) < (other.x, other.y)
 
     def __str__(self):
         return f"({self.x}, {self.y})"

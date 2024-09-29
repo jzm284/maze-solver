@@ -1,19 +1,24 @@
 import pygame
+import sys
 from queue import PriorityQueue
 
+SQUARE_SIZE = 20
+HEADER_SIZE = 0
 
 def a_star(screen, clock, maze, start: int, end: int) -> None:
     reached_end = False
     start_node = get_start_node(maze, start)
+    end_node = get_end_node(maze, end)
     curr_node = start_node
     curr_cost = 0
     open_set = PriorityQueue()
-    open_set.put(0 + manhattan_distance(curr_node, end), curr_node)
+    open_set.put((0 + manhattan_distance(start_node, end_node), start_node))
     path = {}
     while not reached_end:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
+                sys.exit()
                 return
         
         if curr_node.x == end[0] and curr_node.y == end[1]:
@@ -24,10 +29,10 @@ def a_star(screen, clock, maze, start: int, end: int) -> None:
             print("No path found")
             return
         
-        pygame.draw.rect(screen, (0, 0, 0), (curr_node.x * 20, curr_node.y * 20, 20, 20))
+        pygame.draw.rect(screen, (0, 0, 0), (curr_node.x * SQUARE_SIZE, curr_node.y * SQUARE_SIZE + HEADER_SIZE, SQUARE_SIZE, SQUARE_SIZE))
         neighbors = curr_node.neighbors
         for neighbor in neighbors:
-            cost = curr_cost + 1 + manhattan_distance(neighbor, end)
+            cost = curr_cost + 1 + manhattan_distance(neighbor, end_node)
             open_set.put((cost, neighbor))
         curr_cost += 1
         next_node = open_set.get()[1]
