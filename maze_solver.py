@@ -36,6 +36,13 @@ def a_star(screen, clock, maze, start: int, end: int) -> None:
         pygame.display.flip()
         clock.tick(60)
 
+def get_end_node(edges, end):
+    for edge in edges:
+        if (edge.node1.x == end[0] and edge.node1.y == end[1]):
+            return edge.node1
+        elif (edge.node2.x == end[0] and edge.node2.y == end[1]):
+            return edge.node2
+    return None
 
 def get_start_node(edges, start):
     for edge in edges:
