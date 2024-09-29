@@ -133,8 +133,8 @@ def draw_maze(width, height, screen, clock, edges):
             edge.node1.union(edge.node2)
             node1 = edge.node1
             node2 = edge.node2
-            node1.edges.append(node2)
-            node2.edges.append(node1)
+            node1.neighbors.append(node2)
+            node2.neighbors.append(node1)
             x1, y1 = node1.x, node1.y
             x2, y2 = node2.x, node2.y
 
@@ -349,9 +349,7 @@ class Node:
     def __init__(self, x, y):
         self.x = x
         self.y = y
-        # we know this node's edges have to include this node
-        # and they're bidirectional so we can just store the adjacent nodes
-        self.edges = []
+        self.neighbors = []
         self.group = set()
         self.group.add(self)
 
