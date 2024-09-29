@@ -21,24 +21,36 @@ def a_star(screen, clock, maze, start: int, end: int) -> None:
                 sys.exit()
                 return
         curr_node.visited = True
-        if curr_node.x == end[0] and curr_node.y == end[1]:
-            reached_end = True
-            draw_path(screen, curr_node, start_node, path)
-            break
-        elif open_set.empty():
-            print("No path found")
-            return
         print(curr_node.x, curr_node.y)
         pygame.draw.rect(screen, (0, 0, 0), (curr_node.x * SQUARE_SIZE, curr_node.y * SQUARE_SIZE + HEADER_SIZE, SQUARE_SIZE, SQUARE_SIZE))
         neighbors = curr_node.neighbors
         for neighbor in neighbors:
             if neighbor.visited:
                 continue
+            path[neighbor] = curr_node
             open_set.put((manhattan_distance(neighbor, end_node), neighbor))
         curr_cost += 1
         next_node = open_set.get()[1]
-        path[next_node] = curr_node
         curr_node = next_node
+        pygame.display.flip()
+        clock.tick(20)
+        if curr_node.x == end[0] and curr_node.y == end[1]:
+            reached_end = True
+            draw_path(screen, clock, curr_node, start_node, path)
+            return
+
+def draw_path(screen, clock, end_node, start_node, path):
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            pygame.quit()
+            sys.exit()
+            return
+    curr_node = end_node
+    pygame.draw.rect(screen, (0, 255, 0), (curr_node.x * SQUARE_SIZE, curr_node.y * SQUARE_SIZE + HEADER_SIZE, SQUARE_SIZE, SQUARE_SIZE))
+    pygame.display.flip()
+    while curr_node != start_node:
+        curr_node = path[curr_node]
+        pygame.draw.rect(screen, (0, 255, 0), (curr_node.x * SQUARE_SIZE, curr_node.y * SQUARE_SIZE + HEADER_SIZE, SQUARE_SIZE, SQUARE_SIZE))
         pygame.display.flip()
         clock.tick(20)
 

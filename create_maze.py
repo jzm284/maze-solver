@@ -245,6 +245,7 @@ def create_maze(width, height):
                 
         if lock_points:
             a_star(screen, clock, maze, start_end[0], start_end[1])
+            return None
 
         # setting frame rate to 60fps max
         clock.tick(60)
