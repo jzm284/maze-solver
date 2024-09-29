@@ -1,6 +1,7 @@
 import random
 import pygame
 import time
+from maze_solver import a_star
 
 # right, down, left, up
 directions = [(0, 1), (1, 0), (0, -1), (-1, 0)]

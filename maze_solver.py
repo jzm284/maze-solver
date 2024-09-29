@@ -1,6 +1,5 @@
 import pygame
 from queue import PriorityQueue
-from create_maze import 
 
 
 def a_star(screen, clock, maze, start: int, end: int) -> None:
@@ -21,6 +20,9 @@ def a_star(screen, clock, maze, start: int, end: int) -> None:
             reached_end = True
             draw_path(screen, curr_node, start_node, path)
             break
+        elif open_set.empty():
+            print("No path found")
+            return
         
         pygame.draw.rect(screen, (0, 0, 0), (curr_node.x * 20, curr_node.y * 20, 20, 20))
         neighbors = curr_node.neighbors
@@ -31,21 +33,17 @@ def a_star(screen, clock, maze, start: int, end: int) -> None:
         next_node = open_set.get()[1]
         path[next_node] = curr_node
         curr_node = next_node
-        
+        pygame.display.flip()
+        clock.tick(60)
+
 
 def get_start_node(edges, start):
-    curr_node = None
     for edge in edges:
         if (edge.node1.x == start[0] and edge.node1.y == start[1]):
-            curr_node = edge.node1
-            break
+            return edge.node1
         elif (edge.node2.x == start[0] and edge.node2.y == start[1]):
-            curr_node = edge.node2
-            break
-    
-    if curr_node == None:
-        print("Error: Start node not found in maze")
-        return
+            return edge.node2
+    return None
   
 # heuristic function for A*      
 def manhattan_distance(node1, node2):
