@@ -348,6 +348,7 @@ class Node:
     def __init__(self, x, y):
         self.x = x
         self.y = y
+        self.visited = False
         self.neighbors = []
         self.group = set()
         self.group.add(self)
