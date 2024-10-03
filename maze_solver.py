@@ -12,7 +12,7 @@ def a_star(screen, clock, maze, start: int, end: int) -> None:
     curr_node = start_node
     curr_cost = 0
     open_set = PriorityQueue()
-    open_set.put((0 + manhattan_distance(start_node, end_node), start_node))
+    open_set.put((manhattan_distance(start_node, end_node), start_node))
     path = {}
     while not reached_end:
         for event in pygame.event.get():

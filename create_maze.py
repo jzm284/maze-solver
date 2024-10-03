@@ -14,6 +14,7 @@ HEIGHT = 20
 SQUARE_SIZE = 40
 HEADER_SIZE = 0
 SIDE_PANEL_SIZE = 150
+FONT_SIZE = 22
 
 # Colors
 button_color = (0, 128, 255)
@@ -21,7 +22,7 @@ text_color = (255, 255, 255)
 
 # Button properties
 btn_maze_start = pygame.Rect(825, 100, 100, 75)
-button_text = "Click Me!"
+btn_reset_maze = pygame.Rect(825, 200, 100, 75)
 
 
 def get_grid(width: int, height: int):
@@ -224,10 +225,16 @@ def create_maze(width, height):
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if btn_maze_start.collidepoint(event.pos):
                     choosing_start = True
+                elif btn_reset_maze.collidepoint(event.pos):
+                    edges = get_grid(width, height)
+                    draw_grid(width, height, screen)
+                    maze = draw_maze(width, height, screen, clock, edges)
         
         if firstRun:
-            text = ["Set", "Maze Start"]
-            draw_button(screen, text, btn_maze_start, button_color, text_color, "Calibri.ttf", 16)
+            start_text = ["Set", "Maze Start"]
+            draw_button(screen, start_text, btn_maze_start, button_color, text_color, "Calibri.ttf", FONT_SIZE)
+            reset_text = ["Reset", "Maze"]
+            draw_button(screen, reset_text, btn_reset_maze, button_color, text_color, "Calibri.ttf", FONT_SIZE)
             firstRun = False
             edges = get_grid(width, height)
             draw_grid(width, height, screen)
