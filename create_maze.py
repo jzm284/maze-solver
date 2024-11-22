@@ -208,6 +208,9 @@ def create_maze(width, height):
         : the minimum spanning tree on successful completion, else None
     """
     pygame.init()
+    pygame.display.set_caption('Maze Solver')
+    logo = pygame.image.load('logo.jpg')
+    pygame.display.set_icon(logo)
     screen = pygame.display.set_mode(
         (width * SQUARE_SIZE + SIDE_PANEL_SIZE, height * SQUARE_SIZE + HEADER_SIZE)
     )
