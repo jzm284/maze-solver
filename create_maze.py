@@ -21,8 +21,8 @@ button_color = (0, 128, 255)
 text_color = (255, 255, 255)
 
 # Button properties
-btn_maze_start = pygame.Rect(825, 100, 100, 75)
-btn_reset_maze = pygame.Rect(825, 200, 100, 75)
+btn_reset_maze = pygame.Rect(825, 100, 100, 75)
+btn_maze_start = pygame.Rect(825, 200, 100, 75)
 
 
 def get_grid(width: int, height: int):
@@ -102,7 +102,7 @@ def draw_grid(width, height, screen):
     pygame.display.flip()
 
 
-def draw_maze(width, height, screen, clock, edges):
+def draw_maze(width, height, screen, clock, edges, fast=False):
     """
     Draws the maze using Kruskal's algorithm.
     The algorithm finds the minimum spanning tree from a randomly sorted set
@@ -125,7 +125,6 @@ def draw_maze(width, height, screen, clock, edges):
     while len(minSpanningTree) < n - 1:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                pygame.quit()
                 return None
         edge = edges.pop(0)
         # Kruskal's algorithm: if the nodes are in different sets,
@@ -186,7 +185,11 @@ def draw_maze(width, height, screen, clock, edges):
                 )
 
             pygame.display.update()
-            clock.tick(60)
+            if not fast:
+                clock.tick(60)
+            else:
+                # draw the maze all at once
+                clock.tick(1000)
         else:
             continue
     return minSpanningTree
@@ -210,7 +213,9 @@ def create_maze(width, height):
     )
     clock = pygame.time.Clock()
     screen.fill(LIGHT_BLUE)
+    # Draw header (none right now)
     pygame.draw.rect(screen, (LIGHT_GRAY), (0, 0, width * SQUARE_SIZE, HEADER_SIZE))
+    # Draw side panel with buttons
     pygame.draw.rect(screen, (LIGHT_GRAY), (width * SQUARE_SIZE, 0, SIDE_PANEL_SIZE, height * SQUARE_SIZE))
 
     # Flag to avoid recreating the maze on every iteration
@@ -229,6 +234,8 @@ def create_maze(width, height):
                     edges = get_grid(width, height)
                     draw_grid(width, height, screen)
                     maze = draw_maze(width, height, screen, clock, edges)
+                    if maze == None:
+                        running = False
         
         if firstRun:
             start_text = ["Set", "Maze Start"]
@@ -239,6 +246,8 @@ def create_maze(width, height):
             edges = get_grid(width, height)
             draw_grid(width, height, screen)
             maze = draw_maze(width, height, screen, clock, edges)
+            if maze == None:
+                running = False
         
         if choosing_start and not lock_points:
             print("Choosing start")
@@ -252,8 +261,10 @@ def create_maze(width, height):
                 
         if lock_points:
             a_star(screen, clock, maze, start_end[0], start_end[1])
-            return None
-
+            time.sleep(3)
+            running = False
+        
+        
         # setting frame rate to 60fps max
         clock.tick(60)
     pygame.quit()
