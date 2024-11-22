@@ -250,12 +250,10 @@ def create_maze(width, height):
                 running = False
         
         if choosing_start and not lock_points:
-            print("Choosing start")
             done_choosing, start_end = choose_start(screen, clock)
             if done_choosing:
                 choosing_start = False
                 lock_points = start_end is not None
-                print(f"Choosing start: {choosing_start}, Lock points: {lock_points}")
             else:
                 running = False
                 
@@ -284,9 +282,7 @@ def choose_start(screen, clock):
                     # Find which grid cell the mouse is in
                     start_x = x // SQUARE_SIZE
                     start_y = y // SQUARE_SIZE
-                    if start_x < WIDTH and start_y < HEIGHT: # User chose a valid start position
-                        print(f"Start: ({start_x}, {start_y})")
-                        
+                    if start_x < WIDTH and start_y < HEIGHT: # User chose a valid start position                        
                         # now user has to choose an end location
                         rval, (end_x, end_y) = choose_end(screen, clock, (start_x, start_y))
                         if not rval:
